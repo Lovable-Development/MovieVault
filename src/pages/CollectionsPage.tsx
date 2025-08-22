@@ -33,8 +33,12 @@ export function CollectionsPage() {
   const [vaultItems, setVaultItems] = useState<VaultItem[]>([]);
   const [selectedCollection, setSelectedCollection] = useState<Collection | null>(null);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingCollection, setEditingCollection] = useState<Collection | null>(null);
   const [newCollectionName, setNewCollectionName] = useState('');
   const [newCollectionDescription, setNewCollectionDescription] = useState('');
+  const [editCollectionName, setEditCollectionName] = useState('');
+  const [editCollectionDescription, setEditCollectionDescription] = useState('');
   const { toast } = useToast();
 
   useEffect(() => {
@@ -72,6 +76,66 @@ export function CollectionsPage() {
       toast({
         title: "Error",
         description: "Failed to create collection. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleEditCollection = (collection: Collection) => {
+    setEditingCollection(collection);
+    setEditCollectionName(collection.name);
+    setEditCollectionDescription(collection.description || '');
+    setIsEditDialogOpen(true);
+  };
+
+  const handleUpdateCollection = () => {
+    if (!editingCollection || !editCollectionName.trim()) {
+      toast({
+        title: "Error",
+        description: "Collection name is required.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const collections = vaultStorage.getCollections();
+      const updatedCollections = collections.map(collection => 
+        collection.id === editingCollection.id 
+          ? { 
+              ...collection, 
+              name: editCollectionName.trim(), 
+              description: editCollectionDescription.trim() || undefined 
+            }
+          : collection
+      );
+      
+      vaultStorage.saveCollections(updatedCollections);
+      
+      // Update selectedCollection if we're currently viewing the edited collection
+      if (selectedCollection && selectedCollection.id === editingCollection.id) {
+        setSelectedCollection({
+          ...selectedCollection,
+          name: editCollectionName.trim(),
+          description: editCollectionDescription.trim() || undefined
+        });
+      }
+      
+      setEditCollectionName('');
+      setEditCollectionDescription('');
+      setEditingCollection(null);
+      setIsEditDialogOpen(false);
+      loadData();
+      
+      toast({
+        title: "Updated",
+        description: `Collection "${editCollectionName}" updated successfully!`,
+      });
+    } catch (error) {
+      console.error('Error updating collection:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update collection. Please try again.",
         variant: "destructive",
       });
     }
@@ -184,8 +248,9 @@ export function CollectionsPage() {
                   title="Watched"
                   items={watchedItems}
                   onToggleWatched={handleToggleWatched}
-                  onAddToCollection={(itemId) => handleRemoveFromCollection(itemId, selectedCollection.id)}
-                  showCollectionButton={true}
+                  onRemoveFromCollection={(itemId) => handleRemoveFromCollection(itemId, selectedCollection.id)}
+                  isInCollectionView={true}
+                  showCollectionButton={false}
                   emptyMessage="No watched items in this collection"
                 />
               )}
@@ -196,8 +261,9 @@ export function CollectionsPage() {
                   title="To Watch"
                   items={unwatchedItems}
                   onToggleWatched={handleToggleWatched}
-                  onAddToCollection={(itemId) => handleRemoveFromCollection(itemId, selectedCollection.id)}
-                  showCollectionButton={true}
+                  onRemoveFromCollection={(itemId) => handleRemoveFromCollection(itemId, selectedCollection.id)}
+                  isInCollectionView={true}
+                  showCollectionButton={false}
                   emptyMessage="No unwatched items in this collection"
                 />
               )}
@@ -265,6 +331,44 @@ export function CollectionsPage() {
                 </DialogFooter>
               </DialogContent>
             </Dialog>
+
+            {/* Edit Collection Dialog */}
+            <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+              <DialogContent className="bg-vault-dark border-vault-gray">
+                <DialogHeader>
+                  <DialogTitle>Edit Collection</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-sm font-medium">Name *</label>
+                    <Input
+                      value={editCollectionName}
+                      onChange={(e) => setEditCollectionName(e.target.value)}
+                      placeholder="Collection name"
+                      className="bg-vault-gray border-vault-gray-light"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">Description (optional)</label>
+                    <Textarea
+                      value={editCollectionDescription}
+                      onChange={(e) => setEditCollectionDescription(e.target.value)}
+                      placeholder="Describe what this collection is about..."
+                      className="bg-vault-gray border-vault-gray-light"
+                      rows={3}
+                    />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button onClick={handleUpdateCollection} className="bg-vault-red hover:bg-vault-red-hover">
+                    Update Collection
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
       </div>
@@ -313,36 +417,50 @@ export function CollectionsPage() {
                         </div>
                       </div>
                       
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={(e) => e.stopPropagation()}
-                            className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent className="bg-vault-dark border-vault-gray">
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Delete Collection</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              Are you sure you want to delete "{collection.name}"? This action cannot be undone.
-                              The movies and TV shows will remain in your vault.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction
-                              onClick={() => handleDeleteCollection(collection)}
-                              className="bg-destructive hover:bg-destructive/90"
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleEditCollection(collection);
+                          }}
+                          className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-vault-red"
+                        >
+                          <Edit3 className="h-4 w-4" />
+                        </Button>
+                        
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => e.stopPropagation()}
+                              className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
                             >
-                              Delete
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent className="bg-vault-dark border-vault-gray">
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Delete Collection</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Are you sure you want to delete "{collection.name}"? This action cannot be undone.
+                                The movies and TV shows will remain in your vault.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => handleDeleteCollection(collection)}
+                                className="bg-destructive hover:bg-destructive/90"
+                              >
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
                     </div>
                     
                     {collection.description && (

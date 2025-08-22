@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Eye, EyeOff, Plus, Star } from 'lucide-react';
+import { Eye, EyeOff, Plus, Star, Trash2, FolderPlus, FolderMinus } from 'lucide-react';
 import { VaultItem } from '@/lib/storage';
 import { tmdbService } from '@/lib/tmdb';
 import { Button } from '@/components/ui/button';
@@ -10,22 +10,32 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { CollectionSelectionDialog } from './CollectionSelectionDialog';
 
 interface MovieCardProps {
   item: VaultItem;
   onToggleWatched: (itemId: string) => void;
   onAddToCollection?: (itemId: string) => void;
+  onRemoveFromVault?: (itemId: string) => void;
+  onRemoveFromCollection?: (itemId: string) => void;
   showCollectionButton?: boolean;
+  showRemoveButton?: boolean;
+  isInCollectionView?: boolean;
 }
 
 export function MovieCard({ 
   item, 
   onToggleWatched, 
   onAddToCollection, 
-  showCollectionButton = true 
+  onRemoveFromVault,
+  onRemoveFromCollection,
+  showCollectionButton = true,
+  showRemoveButton = false,
+  isInCollectionView = false
 }: MovieCardProps) {
   const [imageLoading, setImageLoading] = useState(true);
   const [imageError, setImageError] = useState(false);
+  const [showCollectionDialog, setShowCollectionDialog] = useState(false);
   
   const posterUrl = tmdbService.getPosterUrl(item.posterPath, 'w342');
   const releaseYear = item.releaseDate ? new Date(item.releaseDate).getFullYear() : 'N/A';
@@ -93,20 +103,58 @@ export function MovieCard({
               </Tooltip>
               
               {/* Add to Collection Button */}
-              {showCollectionButton && onAddToCollection && (
+              {showCollectionButton && (
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button
                       size="sm"
                       variant="secondary"
-                      onClick={() => onAddToCollection(item.id)}
+                      onClick={() => setShowCollectionDialog(true)}
                       className="bg-vault-dark/80 hover:bg-vault-dark border-vault-red/50"
                     >
-                      <Plus className="h-4 w-4" />
+                      <FolderPlus className="h-4 w-4" />
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
                     Add to Collection
+                  </TooltipContent>
+                </Tooltip>
+              )}
+
+              {/* Remove from Collection Button (for collection view) */}
+              {isInCollectionView && onRemoveFromCollection && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      onClick={() => onRemoveFromCollection(item.id)}
+                      className="bg-vault-dark/80 hover:bg-vault-dark border-vault-red/50"
+                    >
+                      <FolderMinus className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    Remove from Collection
+                  </TooltipContent>
+                </Tooltip>
+              )}
+              
+              {/* Remove from Vault Button */}
+              {showRemoveButton && onRemoveFromVault && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      onClick={() => onRemoveFromVault(item.id)}
+                      className="bg-destructive/80 hover:bg-destructive border-destructive/50"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    Remove from Vault
                   </TooltipContent>
                 </Tooltip>
               )}
@@ -157,6 +205,13 @@ export function MovieCard({
           )}
         </div>
       </div>
+
+      {/* Collection Selection Dialog */}
+      <CollectionSelectionDialog
+        isOpen={showCollectionDialog}
+        onClose={() => setShowCollectionDialog(false)}
+        vaultItem={item}
+      />
     </TooltipProvider>
   );
 }

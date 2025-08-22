@@ -43,9 +43,10 @@ export function SearchPage({ onItemAdded }: SearchPageProps) {
     setVaultItems(vaultStorage.getVaultItems());
   };
 
-  const handleAddToCollection = (itemId: string) => {
-    // For now, just show a message
-    console.log('Add to collection:', itemId);
+  const handleRemoveFromVault = (itemId: string) => {
+    vaultStorage.removeVaultItem(itemId);
+    setVaultItems(vaultStorage.getVaultItems());
+    onItemAdded(); // Refresh parent
   };
 
   // Recent additions (last 5 items)
@@ -141,7 +142,8 @@ export function SearchPage({ onItemAdded }: SearchPageProps) {
             title="Recently Added to Your Vault"
             items={recentItems}
             onToggleWatched={handleToggleWatched}
-            onAddToCollection={handleAddToCollection}
+            onRemoveFromVault={handleRemoveFromVault}
+            showRemoveButton={true}
             emptyMessage="No items in your vault yet"
           />
         )}

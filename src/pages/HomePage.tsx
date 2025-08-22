@@ -6,7 +6,7 @@ import { Plus } from 'lucide-react';
 import heroImage from '@/assets/movie-hero-bg.jpg';
 
 interface HomePageProps {
-  onPageChange: (page: 'search' | 'collections') => void;
+  onPageChange: (page: 'search' | 'collections' | 'vault') => void;
   refreshTrigger: number;
 }
 
@@ -25,9 +25,10 @@ export function HomePage({ onPageChange, refreshTrigger }: HomePageProps) {
     setVaultItems(vaultStorage.getVaultItems());
   };
 
-  const handleAddToCollection = (itemId: string) => {
-    // For now, just navigate to collections page
-    onPageChange('collections');
+  const handleRemoveFromVault = (itemId: string) => {
+    vaultStorage.removeVaultItem(itemId);
+    setVaultItems(vaultStorage.getVaultItems());
+    setCollections(vaultStorage.getCollections());
   };
 
   // Separate watched and unwatched items
@@ -65,12 +66,11 @@ export function HomePage({ onPageChange, refreshTrigger }: HomePageProps) {
                 Add Movies & TV Shows
               </Button>
               <Button
-                size="lg"
                 variant="outline"
-                onClick={() => onPageChange('collections')}
+                onClick={() => onPageChange('vault')}
                 className="border-white text-white hover:bg-white hover:text-black"
               >
-                Browse Collections
+                Browse Vault
               </Button>
             </div>
           </div>
@@ -100,13 +100,14 @@ export function HomePage({ onPageChange, refreshTrigger }: HomePageProps) {
           <>
             {/* Recent Additions */}
             {recentItems.length > 0 && (
-              <MovieCarousel
-                title="Recently Added"
-                items={recentItems}
-                onToggleWatched={handleToggleWatched}
-                onAddToCollection={handleAddToCollection}
-                emptyMessage="No recent additions"
-              />
+                <MovieCarousel
+                  title="Recently Added"
+                  items={recentItems}
+                  onToggleWatched={handleToggleWatched}
+                  onRemoveFromVault={handleRemoveFromVault}
+                  showRemoveButton={true}
+                  emptyMessage="No recent additions"
+                />
             )}
 
             {/* Watched Section */}
@@ -114,7 +115,8 @@ export function HomePage({ onPageChange, refreshTrigger }: HomePageProps) {
               title="Watched"
               items={watchedItems}
               onToggleWatched={handleToggleWatched}
-              onAddToCollection={handleAddToCollection}
+              onRemoveFromVault={handleRemoveFromVault}
+              showRemoveButton={true}
               emptyMessage="No watched movies or shows yet. Mark some as watched to see them here!"
             />
 
@@ -123,7 +125,8 @@ export function HomePage({ onPageChange, refreshTrigger }: HomePageProps) {
               title="To Watch"
               items={unwatchedItems}
               onToggleWatched={handleToggleWatched}
-              onAddToCollection={handleAddToCollection}
+              onRemoveFromVault={handleRemoveFromVault}
+              showRemoveButton={true}
               emptyMessage="All caught up! Add more movies to your watchlist."
             />
 

@@ -1,10 +1,10 @@
-import { Search, Home, Grid3X3, Plus } from 'lucide-react';
+import { Search, Home, Grid3X3, Library } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SearchBar } from './SearchBar';
 
 interface HeaderProps {
-  currentPage: 'home' | 'search' | 'collections';
-  onPageChange: (page: 'home' | 'search' | 'collections') => void;
+  currentPage: 'home' | 'search' | 'collections' | 'vault';
+  onPageChange: (page: 'home' | 'search' | 'collections' | 'vault') => void;
   onItemAdded?: () => void;
 }
 
@@ -58,6 +58,16 @@ export function Header({ currentPage, onPageChange, onItemAdded }: HeaderProps) 
             >
               <Grid3X3 className="h-4 w-4 mr-2" />
               Collections
+            </Button>
+            
+            <Button
+              variant={currentPage === 'vault' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => onPageChange('vault')}
+              className={currentPage === 'vault' ? 'bg-vault-red hover:bg-vault-red-hover' : ''}
+            >
+              <Library className="h-4 w-4 mr-2" />
+              Vault
             </Button>
           </nav>
         </div>

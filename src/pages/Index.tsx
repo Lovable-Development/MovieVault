@@ -3,8 +3,9 @@ import { Header } from '@/components/Header';
 import { HomePage } from './HomePage';
 import { SearchPage } from './SearchPage';
 import { CollectionsPage } from './CollectionsPage';
+import { VaultPage } from './VaultPage';
 
-type Page = 'home' | 'search' | 'collections';
+type Page = 'home' | 'search' | 'collections' | 'vault';
 
 const Index = () => {
   const [currentPage, setCurrentPage] = useState<Page>('home');
@@ -39,6 +40,10 @@ const Index = () => {
       
       {currentPage === 'collections' && (
         <CollectionsPage />
+      )}
+      
+      {currentPage === 'vault' && (
+        <VaultPage refreshTrigger={refreshTrigger} />
       )}
     </div>
   );

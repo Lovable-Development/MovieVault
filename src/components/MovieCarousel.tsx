@@ -7,7 +7,11 @@ interface MovieCarouselProps {
   items: VaultItem[];
   onToggleWatched: (itemId: string) => void;
   onAddToCollection?: (itemId: string) => void;
+  onRemoveFromVault?: (itemId: string) => void;
+  onRemoveFromCollection?: (itemId: string) => void;
   showCollectionButton?: boolean;
+  showRemoveButton?: boolean;
+  isInCollectionView?: boolean;
   emptyMessage?: string;
 }
 
@@ -16,7 +20,11 @@ export function MovieCarousel({
   items, 
   onToggleWatched, 
   onAddToCollection,
+  onRemoveFromVault,
+  onRemoveFromCollection,
   showCollectionButton = true,
+  showRemoveButton = false,
+  isInCollectionView = false,
   emptyMessage = "No items to display"
 }: MovieCarouselProps) {
   if (items.length === 0) {
@@ -43,7 +51,11 @@ export function MovieCarousel({
                 item={item}
                 onToggleWatched={onToggleWatched}
                 onAddToCollection={onAddToCollection}
+                onRemoveFromVault={onRemoveFromVault}
+                onRemoveFromCollection={onRemoveFromCollection}
                 showCollectionButton={showCollectionButton}
+                showRemoveButton={showRemoveButton}
+                isInCollectionView={isInCollectionView}
               />
             </div>
           ))}
