@@ -1,12 +1,45 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState } from 'react';
+import { Header } from '@/components/Header';
+import { HomePage } from './HomePage';
+import { SearchPage } from './SearchPage';
+import { CollectionsPage } from './CollectionsPage';
+
+type Page = 'home' | 'search' | 'collections';
 
 const Index = () => {
+  const [currentPage, setCurrentPage] = useState<Page>('home');
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+  const handleItemAdded = () => {
+    setRefreshTrigger(prev => prev + 1);
+  };
+
+  const handlePageChange = (page: Page) => {
+    setCurrentPage(page);
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen bg-background">
+      <Header 
+        currentPage={currentPage}
+        onPageChange={handlePageChange}
+        onItemAdded={handleItemAdded}
+      />
+      
+      {currentPage === 'home' && (
+        <HomePage 
+          onPageChange={handlePageChange}
+          refreshTrigger={refreshTrigger}
+        />
+      )}
+      
+      {currentPage === 'search' && (
+        <SearchPage onItemAdded={handleItemAdded} />
+      )}
+      
+      {currentPage === 'collections' && (
+        <CollectionsPage />
+      )}
     </div>
   );
 };
