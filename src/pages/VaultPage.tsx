@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Library, Filter } from 'lucide-react';
+import { Library, Filter, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -13,6 +13,7 @@ import {
 import { MovieCarousel } from '@/components/MovieCarousel';
 import { vaultStorage, VaultItem } from '@/lib/storage';
 import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
 
 interface VaultPageProps {
   refreshTrigger: number;
@@ -24,6 +25,7 @@ export function VaultPage({ refreshTrigger }: VaultPageProps) {
   const [filterType, setFilterType] = useState<'all' | 'movie' | 'tv'>('all');
   const [filterStatus, setFilterStatus] = useState<'all' | 'watched' | 'unwatched'>('all');
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
     setVaultItems(vaultStorage.getVaultItems());
@@ -70,6 +72,15 @@ export function VaultPage({ refreshTrigger }: VaultPageProps) {
       {/* Vault Header */}
       <div className="bg-vault-dark border-b border-vault-gray">
         <div className="container mx-auto px-4 py-8">
+          <Button
+            variant="ghost"
+            onClick={() => navigate('/')}
+            className="mb-6 text-vault-red hover:text-vault-red-hover hover:bg-vault-gray"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Home
+          </Button>
+          
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             <div>
               <div className="flex items-center gap-2 mb-2">

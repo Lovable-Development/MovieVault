@@ -4,7 +4,9 @@ import { MovieCarousel } from '@/components/MovieCarousel';
 import { vaultStorage, VaultItem } from '@/lib/storage';
 import { tmdbService, TMDBMovie } from '@/lib/tmdb';
 import { Card } from '@/components/ui/card';
-import { Loader2, TrendingUp } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Loader2, TrendingUp, ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface SearchPageProps {
   onItemAdded: () => void;
@@ -14,6 +16,7 @@ export function SearchPage({ onItemAdded }: SearchPageProps) {
   const [vaultItems, setVaultItems] = useState<VaultItem[]>([]);
   const [trending, setTrending] = useState<TMDBMovie[]>([]);
   const [isLoadingTrending, setIsLoadingTrending] = useState(true);
+  const navigate = useNavigate();
 
   // Load vault items and trending content
   useEffect(() => {
@@ -58,16 +61,27 @@ export function SearchPage({ onItemAdded }: SearchPageProps) {
     <div className="min-h-screen bg-background">
       {/* Search Hero Section */}
       <div className="bg-gradient-to-b from-vault-dark to-background py-16">
-        <div className="container mx-auto px-4 text-center">
-          <h1 className="text-3xl md:text-4xl font-bold mb-4 text-foreground">
-            Discover Movies & TV Shows
-          </h1>
-          <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Search through millions of movies and TV series from The Movie Database (TMDB) and add them to your vault
-          </p>
+        <div className="container mx-auto px-4">
+          <Button
+            variant="ghost"
+            onClick={() => navigate('/')}
+            className="mb-6 text-vault-red hover:text-vault-red-hover hover:bg-vault-gray"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Home
+          </Button>
           
-          <div className="max-w-lg mx-auto">
-            <SearchBar onItemAdded={handleItemAdded} />
+          <div className="text-center">
+            <h1 className="text-3xl md:text-4xl font-bold mb-4 text-foreground">
+              Discover Movies & TV Shows
+            </h1>
+            <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
+              Search through millions of movies and TV series from The Movie Database (TMDB) and add them to your vault
+            </p>
+            
+            <div className="max-w-lg mx-auto">
+              <SearchBar onItemAdded={handleItemAdded} />
+            </div>
           </div>
         </div>
       </div>

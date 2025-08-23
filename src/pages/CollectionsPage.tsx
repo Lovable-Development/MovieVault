@@ -393,122 +393,85 @@ export function CollectionsPage() {
             </Button>
           </div>
         ) : (
-          <div className="space-y-4">
-            <h2 className="text-xl font-bold text-foreground mb-6">Your Collections</h2>
-            <div className="relative">
-              <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide">
-                {collections.map((collection) => {
-                  const itemCount = getCollectionItems(collection).length;
-                  const collectionItems = getCollectionItems(collection);
-                  const firstFourItems = collectionItems.slice(0, 4);
-                  
-                  return (
-                    <div key={collection.id} className="flex-shrink-0 w-72 sm:w-80 snap-start">
-                      <Card 
-                        className="bg-card border-border/50 hover:border-vault-red/50 transition-all duration-300 cursor-pointer group h-full"
-                        onClick={() => setSelectedCollection(collection)}
+          <div className="space-y-8">
+            {collections.map((collection) => {
+              const collectionItems = getCollectionItems(collection);
+              
+              return (
+                <div key={collection.id} className="space-y-4">
+                  {/* Collection Header with Edit/Delete Actions */}
+                  <div className="flex items-center justify-between">
+                    <h2 
+                      className="text-xl md:text-2xl font-bold cursor-pointer hover:text-vault-red transition-colors group flex items-center gap-3"
+                      onClick={() => setSelectedCollection(collection)}
+                    >
+                      <span>{collection.name}</span>
+                      <Badge variant="secondary" className="bg-vault-gray text-white text-xs">
+                        {collectionItems.length} {collectionItems.length === 1 ? 'item' : 'items'}
+                      </Badge>
+                    </h2>
+                    
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleEditCollection(collection)}
+                        className="text-muted-foreground hover:text-vault-red"
                       >
-                        <div className="p-4 sm:p-6">
-                          {/* Collection Header */}
-                          <div className="flex items-start justify-between mb-4">
-                            <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-vault-red/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                                <Folder className="h-5 w-5 sm:h-6 sm:w-6 text-vault-red" />
-                              </div>
-                              <div className="min-w-0 flex-1">
-                                <h3 className="font-semibold text-base sm:text-lg group-hover:text-vault-red transition-colors truncate">
-                                  {collection.name}
-                                </h3>
-                                <Badge variant="secondary" className="bg-vault-gray text-white text-xs">
-                                  {itemCount} {itemCount === 1 ? 'item' : 'items'}
-                                </Badge>
-                              </div>
-                            </div>
-                            
-                            <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleEditCollection(collection);
-                                }}
-                                className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-vault-red p-1 sm:p-2"
-                              >
-                                <Edit3 className="h-3 w-3 sm:h-4 sm:w-4" />
-                              </Button>
-                              
-                              <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={(e) => e.stopPropagation()}
-                                    className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive p-1 sm:p-2"
-                                  >
-                                    <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
-                                  </Button>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent className="bg-vault-dark border-vault-gray mx-4 max-w-md">
-                                  <AlertDialogHeader>
-                                    <AlertDialogTitle>Delete Collection</AlertDialogTitle>
-                                    <AlertDialogDescription className="text-sm">
-                                      Are you sure you want to delete "{collection.name}"? This action cannot be undone.
-                                      The movies and TV shows will remain in your vault.
-                                    </AlertDialogDescription>
-                                  </AlertDialogHeader>
-                                  <AlertDialogFooter className="flex-col sm:flex-row gap-2">
-                                    <AlertDialogCancel className="w-full sm:w-auto">Cancel</AlertDialogCancel>
-                                    <AlertDialogAction
-                                      onClick={() => handleDeleteCollection(collection)}
-                                      className="bg-destructive hover:bg-destructive/90 w-full sm:w-auto"
-                                    >
-                                      Delete
-                                    </AlertDialogAction>
-                                  </AlertDialogFooter>
-                                </AlertDialogContent>
-                              </AlertDialog>
-                            </div>
-                          </div>
-                          
-                          {/* Preview Grid */}
-                          {firstFourItems.length > 0 && (
-                            <div className="grid grid-cols-2 gap-2 mb-4">
-                              {firstFourItems.map((item, index) => (
-                                <div key={item.id} className="aspect-[2/3] relative rounded overflow-hidden bg-vault-gray group-hover:scale-105 transition-transform duration-300">
-                                  <img 
-                                    src={tmdbService.getPosterUrl(item.posterPath, 'w342')} 
-                                    alt={item.title}
-                                    className="w-full h-full object-cover"
-                                    loading="lazy"
-                                  />
-                                </div>
-                              ))}
-                              {/* Fill empty slots with placeholder */}
-                              {Array.from({ length: Math.max(0, 4 - firstFourItems.length) }).map((_, index) => (
-                                <div key={`empty-${index}`} className="aspect-[2/3] bg-vault-gray/30 rounded flex items-center justify-center">
-                                  <Folder className="h-6 w-6 text-vault-gray" />
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                          
-                          {collection.description && (
-                            <p className="text-xs sm:text-sm text-muted-foreground mb-3 line-clamp-2">
-                              {collection.description}
-                            </p>
-                          )}
-                          
-                          <p className="text-xs text-muted-foreground">
-                            Created {new Date(collection.createdAt).toLocaleDateString()}
-                          </p>
-                        </div>
-                      </Card>
+                        <Edit3 className="h-4 w-4" />
+                      </Button>
+                      
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-muted-foreground hover:text-destructive"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent className="bg-vault-dark border-vault-gray mx-4 max-w-md">
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Delete Collection</AlertDialogTitle>
+                            <AlertDialogDescription className="text-sm">
+                              Are you sure you want to delete "{collection.name}"? This action cannot be undone.
+                              The movies and TV shows will remain in your vault.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+                            <AlertDialogCancel className="w-full sm:w-auto">Cancel</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() => handleDeleteCollection(collection)}
+                              className="bg-destructive hover:bg-destructive/90 w-full sm:w-auto"
+                            >
+                              Delete
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                     </div>
-                  );
-                })}
-              </div>
-            </div>
+                  </div>
+                  
+                  {/* Collection Description */}
+                  {collection.description && (
+                    <p className="text-muted-foreground text-sm max-w-2xl">
+                      {collection.description}
+                    </p>
+                  )}
+                  
+                  {/* Collection Items Carousel */}
+                  <MovieCarousel
+                    title=""
+                    items={collectionItems}
+                    onToggleWatched={handleToggleWatched}
+                    onRemoveFromCollection={(itemId) => handleRemoveFromCollection(itemId, collection.id)}
+                    showCollectionButton={false}
+                    emptyMessage={`No items in ${collection.name} collection yet`}
+                  />
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
