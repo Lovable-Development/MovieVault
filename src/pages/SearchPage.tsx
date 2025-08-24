@@ -12,7 +12,7 @@ interface SearchPageProps {
   onItemAdded: () => void;
 }
 
-export function SearchPage({ onItemAdded }: SearchPageProps) {
+const SearchPage = ({ onItemAdded }: SearchPageProps) => {
   const [vaultItems, setVaultItems] = useState<VaultItem[]>([]);
   const [trending, setTrending] = useState<TMDBMovie[]>([]);
   const [isLoadingTrending, setIsLoadingTrending] = useState(true);
@@ -60,7 +60,7 @@ export function SearchPage({ onItemAdded }: SearchPageProps) {
   return (
     <div className="min-h-screen bg-background">
       {/* Search Hero Section */}
-      <div className="bg-gradient-to-b from-vault-dark to-background py-16">
+      <div className="bg-gradient-to-b from-vault-dark to-background pt-8 pb-16">
         <div className="container mx-auto px-4">
           <Button
             variant="ghost"
@@ -177,3 +177,5 @@ export function SearchPage({ onItemAdded }: SearchPageProps) {
     </div>
   );
 }
+
+export default SearchPage;

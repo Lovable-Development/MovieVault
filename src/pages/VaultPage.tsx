@@ -19,7 +19,7 @@ interface VaultPageProps {
   refreshTrigger: number;
 }
 
-export function VaultPage({ refreshTrigger }: VaultPageProps) {
+const VaultPage = ({ refreshTrigger }: VaultPageProps) => {
   const [vaultItems, setVaultItems] = useState<VaultItem[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'movie' | 'tv'>('all');
@@ -224,3 +224,5 @@ export function VaultPage({ refreshTrigger }: VaultPageProps) {
     </div>
   );
 }
+
+export default VaultPage;

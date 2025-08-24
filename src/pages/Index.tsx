@@ -1,50 +1,13 @@
-import { useState } from 'react';
-import { Header } from '@/components/Header';
-import { HomePage } from './HomePage';
-import { SearchPage } from './SearchPage';
-import { CollectionsPage } from './CollectionsPage';
-import { VaultPage } from './VaultPage';
-
-type Page = 'home' | 'search' | 'collections' | 'vault';
+import { Outlet } from "react-router-dom";
+import { Header } from "@/components/Header";
 
 const Index = () => {
-  const [currentPage, setCurrentPage] = useState<Page>('home');
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
-
-  const handleItemAdded = () => {
-    setRefreshTrigger(prev => prev + 1);
-  };
-
-  const handlePageChange = (page: Page) => {
-    setCurrentPage(page);
-  };
-
   return (
     <div className="min-h-screen bg-background">
-      <Header 
-        currentPage={currentPage}
-        onPageChange={handlePageChange}
-        onItemAdded={handleItemAdded}
-      />
-      
-      {currentPage === 'home' && (
-        <HomePage 
-          onPageChange={handlePageChange}
-          refreshTrigger={refreshTrigger}
-        />
-      )}
-      
-      {currentPage === 'search' && (
-        <SearchPage onItemAdded={handleItemAdded} />
-      )}
-      
-      {currentPage === 'collections' && (
-        <CollectionsPage />
-      )}
-      
-      {currentPage === 'vault' && (
-        <VaultPage refreshTrigger={refreshTrigger} />
-      )}
+      <Header />
+      <main className="p-4">
+        <Outlet /> {/* Child routes render here */}
+      </main>
     </div>
   );
 };

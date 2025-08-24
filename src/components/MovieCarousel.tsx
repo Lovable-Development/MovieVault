@@ -44,7 +44,7 @@ export function MovieCarousel({
       <h2 className="text-xl font-bold text-foreground">{title}</h2>
       
       <ScrollArea className="w-full whitespace-nowrap">
-        <div className="flex space-x-4 pb-4">
+        <div className="flex space-x-4 py-4">
           {items.map((item) => (
             <div key={item.id} className="w-[200px] flex-shrink-0">
               <MovieCard

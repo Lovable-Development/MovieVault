@@ -1,25 +1,22 @@
-import { Search, Home, Grid3X3, Library, Menu, X } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { SearchBar } from './SearchBar';
-import { useState } from 'react';
+import { Search, Home, Grid3X3, Library, Menu, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { SearchBar } from "./SearchBar";
+import { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 
 interface HeaderProps {
-  currentPage: 'home' | 'search' | 'collections' | 'vault';
-  onPageChange: (page: 'home' | 'search' | 'collections' | 'vault') => void;
   onItemAdded?: () => void;
 }
 
-export function Header({ currentPage, onPageChange, onItemAdded }: HeaderProps) {
+export function Header({ onItemAdded }: HeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const location = useLocation();
 
   const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
+    setIsMobileMenuOpen((prev) => !prev);
   };
 
-  const handlePageChange = (page: 'home' | 'search' | 'collections' | 'vault') => {
-    onPageChange(page);
-    setIsMobileMenuOpen(false);
-  };
+  const isActive = (path: string) => location.pathname === path;
 
   return (
     <header className="bg-vault-dark/95 backdrop-blur-sm border-b border-vault-gray sticky top-0 z-50">
@@ -30,11 +27,13 @@ export function Header({ currentPage, onPageChange, onItemAdded }: HeaderProps) 
             <div className="w-7 h-7 sm:w-8 sm:h-8 bg-vault-red rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-base sm:text-lg">MV</span>
             </div>
-            <h1 className="text-lg sm:text-xl font-bold text-foreground">Movie Vault</h1>
+            <h1 className="text-lg sm:text-xl font-bold text-foreground">
+              Movie Vault
+            </h1>
           </div>
 
-          {/* Search Bar (only on desktop search page) */}
-          {currentPage === 'search' && (
+          {/* Search Bar (desktop, only on /search) */}
+          {location.pathname === "/search" && (
             <div className="hidden md:flex flex-1 max-w-md mx-8">
               <SearchBar onItemAdded={onItemAdded} />
             </div>
@@ -43,110 +42,131 @@ export function Header({ currentPage, onPageChange, onItemAdded }: HeaderProps) 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-2">
             <Button
-              variant={currentPage === 'home' ? 'default' : 'ghost'}
+              asChild
+              variant={isActive("/") ? "default" : "ghost"}
               size="sm"
-              onClick={() => onPageChange('home')}
-              className={currentPage === 'home' ? 'bg-vault-red hover:bg-vault-red-hover' : ''}
+              className={isActive("/") ? "bg-vault-red hover:bg-vault-red-hover" : ""}
             >
-              <Home className="h-4 w-4 mr-2" />
-              Home
+              <Link to="/">
+                <Home className="h-4 w-4 mr-2" />
+                Home
+              </Link>
             </Button>
-            
+
             <Button
-              variant={currentPage === 'search' ? 'default' : 'ghost'}
+              asChild
+              variant={isActive("/search") ? "default" : "ghost"}
               size="sm"
-              onClick={() => onPageChange('search')}
-              className={currentPage === 'search' ? 'bg-vault-red hover:bg-vault-red-hover' : ''}
+              className={isActive("/search") ? "bg-vault-red hover:bg-vault-red-hover" : ""}
             >
-              <Search className="h-4 w-4 mr-2" />
-              Search
+              <Link to="/search">
+                <Search className="h-4 w-4 mr-2" />
+                Search
+              </Link>
             </Button>
-            
+
             <Button
-              variant={currentPage === 'collections' ? 'default' : 'ghost'}
+              asChild
+              variant={isActive("/collections") ? "default" : "ghost"}
               size="sm"
-              onClick={() => onPageChange('collections')}
-              className={currentPage === 'collections' ? 'bg-vault-red hover:bg-vault-red-hover' : ''}
+              className={
+                isActive("/collections") ? "bg-vault-red hover:bg-vault-red-hover" : ""
+              }
             >
-              <Grid3X3 className="h-4 w-4 mr-2" />
-              Collections
+              <Link to="/collections">
+                <Grid3X3 className="h-4 w-4 mr-2" />
+                Collections
+              </Link>
             </Button>
-            
+
             <Button
-              variant={currentPage === 'vault' ? 'default' : 'ghost'}
+              asChild
+              variant={isActive("/vault") ? "default" : "ghost"}
               size="sm"
-              onClick={() => onPageChange('vault')}
-              className={currentPage === 'vault' ? 'bg-vault-red hover:bg-vault-red-hover' : ''}
+              className={isActive("/vault") ? "bg-vault-red hover:bg-vault-red-hover" : ""}
             >
-              <Library className="h-4 w-4 mr-2" />
-              Vault
+              <Link to="/vault">
+                <Library className="h-4 w-4 mr-2" />
+                Vault
+              </Link>
             </Button>
           </nav>
 
-          {/* Mobile Menu Button */}
-          <Button
-            variant="ghost"
-            size="sm"
-            className="md:hidden"
-            onClick={toggleMobileMenu}
-          >
-            {isMobileMenuOpen ? (
-              <X className="h-5 w-5" />
-            ) : (
-              <Menu className="h-5 w-5" />
-            )}
+          {/* Mobile Menu Toggle */}
+          <Button variant="ghost" size="sm" className="md:hidden" onClick={toggleMobileMenu}>
+            {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>
         </div>
 
-        {/* Mobile Search Bar (on search page) */}
-        {currentPage === 'search' && (
+        {/* Mobile Search Bar (on /search) */}
+        {location.pathname === "/search" && (
           <div className="md:hidden mt-3 px-1">
             <SearchBar onItemAdded={onItemAdded} />
           </div>
         )}
 
-        {/* Mobile Navigation Menu */}
+        {/* Mobile Nav Menu */}
         {isMobileMenuOpen && (
-          <div className="md:hidden absolute left-0 right-0 top-full bg-vault-dark/98 backdrop-blur-sm border-b border-vault-gray shadow-lg">
+          <div className="md:hidden absolute left-0 right-0 top-full bg-vault-dark backdrop-blur-sm border-b border-vault-gray shadow-lg">
             <nav className="container mx-auto px-3 py-4 space-y-2">
               <Button
-                variant={currentPage === 'home' ? 'default' : 'ghost'}
+                asChild
+                variant={isActive("/") ? "default" : "ghost"}
                 size="sm"
-                onClick={() => handlePageChange('home')}
-                className={`w-full justify-start ${currentPage === 'home' ? 'bg-vault-red hover:bg-vault-red-hover' : ''}`}
+                className={`w-full justify-start ${
+                  isActive("/") ? "bg-vault-red hover:bg-vault-red-hover" : ""
+                }`}
+                onClick={() => setIsMobileMenuOpen(false)}
               >
-                <Home className="h-4 w-4 mr-3" />
-                Home
+                <Link to="/">
+                  <Home className="h-4 w-4 mr-3" />
+                  Home
+                </Link>
               </Button>
-              
+
               <Button
-                variant={currentPage === 'search' ? 'default' : 'ghost'}
+                asChild
+                variant={isActive("/search") ? "default" : "ghost"}
                 size="sm"
-                onClick={() => handlePageChange('search')}
-                className={`w-full justify-start ${currentPage === 'search' ? 'bg-vault-red hover:bg-vault-red-hover' : ''}`}
+                className={`w-full justify-start ${
+                  isActive("/search") ? "bg-vault-red hover:bg-vault-red-hover" : ""
+                }`}
+                onClick={() => setIsMobileMenuOpen(false)}
               >
-                <Search className="h-4 w-4 mr-3" />
-                Search
+                <Link to="/search">
+                  <Search className="h-4 w-4 mr-3" />
+                  Search
+                </Link>
               </Button>
-              
+
               <Button
-                variant={currentPage === 'collections' ? 'default' : 'ghost'}
+                asChild
+                variant={isActive("/collections") ? "default" : "ghost"}
                 size="sm"
-                onClick={() => handlePageChange('collections')}
-                className={`w-full justify-start ${currentPage === 'collections' ? 'bg-vault-red hover:bg-vault-red-hover' : ''}`}
+                className={`w-full justify-start ${
+                  isActive("/collections") ? "bg-vault-red hover:bg-vault-red-hover" : ""
+                }`}
+                onClick={() => setIsMobileMenuOpen(false)}
               >
-                <Grid3X3 className="h-4 w-4 mr-3" />
-                Collections
+                <Link to="/collections">
+                  <Grid3X3 className="h-4 w-4 mr-3" />
+                  Collections
+                </Link>
               </Button>
-              
+
               <Button
-                variant={currentPage === 'vault' ? 'default' : 'ghost'}
+                asChild
+                variant={isActive("/vault") ? "default" : "ghost"}
                 size="sm"
-                onClick={() => handlePageChange('vault')}
-                className={`w-full justify-start ${currentPage === 'vault' ? 'bg-vault-red hover:bg-vault-red-hover' : ''}`}
+                className={`w-full justify-start ${
+                  isActive("/vault") ? "bg-vault-red hover:bg-vault-red-hover" : ""
+                }`}
+                onClick={() => setIsMobileMenuOpen(false)}
               >
-                <Library className="h-4 w-4 mr-3" />
-                Vault
+                <Link to="/vault">
+                  <Library className="h-4 w-4 mr-3" />
+                  Vault
+                </Link>
               </Button>
             </nav>
           </div>

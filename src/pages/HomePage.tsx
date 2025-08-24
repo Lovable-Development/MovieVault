@@ -1,18 +1,20 @@
-import { useState, useEffect } from 'react';
-import { VaultItem, vaultStorage } from '@/lib/storage';
-import { MovieCarousel } from '@/components/MovieCarousel';
-import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
-import heroImage from '@/assets/movie-hero-bg.jpg';
+import { useState, useEffect } from "react";
+import { VaultItem, vaultStorage } from "@/lib/storage";
+import { MovieCarousel } from "@/components/MovieCarousel";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
+import heroImage from "@/assets/movie-hero-bg.jpg";
+import { useNavigate } from "react-router-dom";
 
 interface HomePageProps {
-  onPageChange: (page: 'search' | 'collections' | 'vault') => void;
+  onPageChange: (page: "search" | "collections" | "vault") => void;
   refreshTrigger: number;
 }
 
-export function HomePage({ onPageChange, refreshTrigger }: HomePageProps) {
+const HomePage = ({ onPageChange, refreshTrigger }: HomePageProps) => {
   const [vaultItems, setVaultItems] = useState<VaultItem[]>([]);
   const [collections, setCollections] = useState(vaultStorage.getCollections());
+  const navigate = useNavigate();
 
   // Load vault items
   useEffect(() => {
@@ -32,18 +34,20 @@ export function HomePage({ onPageChange, refreshTrigger }: HomePageProps) {
   };
 
   // Separate watched and unwatched items
-  const watchedItems = vaultItems.filter(item => item.isWatched);
-  const unwatchedItems = vaultItems.filter(item => !item.isWatched);
+  const watchedItems = vaultItems.filter((item) => item.isWatched);
+  const unwatchedItems = vaultItems.filter((item) => !item.isWatched);
 
   // Recent additions (last 10 items)
   const recentItems = vaultItems
-    .sort((a, b) => new Date(b.addedAt).getTime() - new Date(a.addedAt).getTime())
+    .sort(
+      (a, b) => new Date(b.addedAt).getTime() - new Date(a.addedAt).getTime()
+    )
     .slice(0, 10);
 
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
-      <div 
+      <div
         className="relative h-[40vh] bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: `url(${heroImage})` }}
       >
@@ -59,7 +63,7 @@ export function HomePage({ onPageChange, refreshTrigger }: HomePageProps) {
             <div className="flex flex-col sm:flex-row gap-4 justify-center animate-scale-in">
               <Button
                 size="lg"
-                onClick={() => onPageChange('search')}
+                onClick={() => navigate("search")}
                 className="bg-vault-red hover:bg-vault-red-hover text-white"
               >
                 <Plus className="h-5 w-5 mr-2" />
@@ -67,7 +71,7 @@ export function HomePage({ onPageChange, refreshTrigger }: HomePageProps) {
               </Button>
               <Button
                 variant="outline"
-                onClick={() => onPageChange('vault')}
+                onClick={() => navigate("vault")}
                 className="border-white text-white hover:bg-white hover:text-black"
               >
                 Browse Vault
@@ -78,18 +82,19 @@ export function HomePage({ onPageChange, refreshTrigger }: HomePageProps) {
       </div>
 
       {/* Content Sections */}
-      <div className="container mx-auto px-4 py-8 space-y-12">
+      <div className="container mx-auto px-4 py-6 space-y-6">
         {vaultItems.length === 0 ? (
           // Empty State
           <div className="text-center py-16">
             <div className="text-6xl mb-6">🎬</div>
             <h2 className="text-2xl font-bold mb-4">Your vault is empty</h2>
             <p className="text-muted-foreground mb-8 max-w-md mx-auto">
-              Start building your movie and TV show collection by searching and adding your favorites!
+              Start building your movie and TV show collection by searching and
+              adding your favorites!
             </p>
             <Button
               size="lg"
-              onClick={() => onPageChange('search')}
+              onClick={() => onPageChange("search")}
               className="bg-vault-red hover:bg-vault-red-hover"
             >
               <Plus className="h-5 w-5 mr-2" />
@@ -100,14 +105,14 @@ export function HomePage({ onPageChange, refreshTrigger }: HomePageProps) {
           <>
             {/* Recent Additions */}
             {recentItems.length > 0 && (
-                <MovieCarousel
-                  title="Recently Added"
-                  items={recentItems}
-                  onToggleWatched={handleToggleWatched}
-                  onRemoveFromVault={handleRemoveFromVault}
-                  showRemoveButton={true}
-                  emptyMessage="No recent additions"
-                />
+              <MovieCarousel
+                title="Recently Added"
+                items={recentItems}
+                onToggleWatched={handleToggleWatched}
+                onRemoveFromVault={handleRemoveFromVault}
+                showRemoveButton={true}
+                emptyMessage="No recent additions"
+              />
             )}
 
             {/* Watched Section */}
@@ -134,28 +139,35 @@ export function HomePage({ onPageChange, refreshTrigger }: HomePageProps) {
             {collections.length > 0 && (
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-xl font-bold text-foreground">Your Collections</h2>
+                  <h2 className="text-xl font-bold text-foreground">
+                    Your Collections
+                  </h2>
                   <Button
                     variant="outline"
-                    onClick={() => onPageChange('collections')}
+                    onClick={() => onPageChange("collections")}
                     className="border-vault-red text-vault-red hover:bg-vault-red hover:text-white"
                   >
                     View All Collections
                   </Button>
                 </div>
-                
+
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   {collections.slice(0, 4).map((collection) => {
-                    const collectionItems = vaultStorage.getCollectionItems(collection.id);
+                    const collectionItems = vaultStorage.getCollectionItems(
+                      collection.id
+                    );
                     return (
                       <div
                         key={collection.id}
                         className="bg-card border border-border/50 rounded-lg p-4 hover:border-vault-red/50 transition-colors cursor-pointer"
-                        onClick={() => onPageChange('collections')}
+                        onClick={() => onPageChange("collections")}
                       >
-                        <h3 className="font-semibold mb-2 line-clamp-1">{collection.name}</h3>
+                        <h3 className="font-semibold mb-2 line-clamp-1">
+                          {collection.name}
+                        </h3>
                         <p className="text-sm text-muted-foreground">
-                          {collectionItems.length} {collectionItems.length === 1 ? 'item' : 'items'}
+                          {collectionItems.length}{" "}
+                          {collectionItems.length === 1 ? "item" : "items"}
                         </p>
                       </div>
                     );
@@ -168,4 +180,6 @@ export function HomePage({ onPageChange, refreshTrigger }: HomePageProps) {
       </div>
     </div>
   );
-}
+};
+
+export default HomePage;
