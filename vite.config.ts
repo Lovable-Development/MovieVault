@@ -1,22 +1,42 @@
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react-swc";
-import path from "path";
-import { componentTagger } from "lovable-tagger";
+import { defineConfig } from 'vite'
+// import react from '@vitejs/plugin-react' // if using React
+import { VitePWA } from 'vite-plugin-pwa'
 
-// https://vitejs.dev/config/
-export default defineConfig(({ mode }) => ({
-  server: {
-    host: "::",
-    port: 8080,
-  },
+export default defineConfig({
   plugins: [
-    react(),
-    mode === 'development' &&
-    componentTagger(),
-  ].filter(Boolean),
-  resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./src"),
-    },
-  },
-}));
+    // react(),
+    VitePWA({
+      registerType: 'autoUpdate',
+      includeAssets: [
+        'favicon.svg',
+        'favicon.ico',
+        'robots.txt',
+        'apple-touch-icon.png'
+      ],
+      manifest: {
+        name: 'MovieVault',
+        short_name: 'MovieVault',
+        description: 'A Progressive Web App built with Vite!',
+        theme_color: '#ffffff',
+        icons: [
+          {
+            src: 'MV-192.png',
+            sizes: '192x192',
+            type: 'image/png'
+          },
+          {
+            src: 'MV-512.png',
+            sizes: '512x512',
+            type: 'image/png'
+          },
+          {
+            src: 'MV-512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'any maskable'
+          }
+        ]
+      }
+    })
+  ]
+})

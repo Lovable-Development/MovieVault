@@ -28,7 +28,7 @@ const SearchPage = ({ onItemAdded }: SearchPageProps) => {
     try {
       setIsLoadingTrending(true);
       const trendingContent = await tmdbService.getTrending('all', 'week');
-      setTrending(trendingContent.slice(0, 10));
+      setTrending(trendingContent.slice(0, 20));
     } catch (error) {
       console.error('Error loading trending content:', error);
     } finally {
